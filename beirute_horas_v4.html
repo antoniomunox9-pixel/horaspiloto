@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beirute — Control de Horas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --teal:          #2BBFB3;
+  --teal-dark:     #1a9990;
+  --danger:        #ef4444;
+  --warning:       #f97316;
+  --green:         #22c55e;
+  --purple:        #9333ea;
+  --bg:            #0f172a;
+  --bg-card:       #1e293b;
+  --bg-input:      #0f172a;
+  --border:        #334155;
+  --text-primary:  #f1f5f9;
+  --text-secondary:#cbd5e1;
+  --text-muted:    #64748b;
+}
+
+body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.5; font-size: 14px; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+.login-card {
+  width: 100%; max-width: 400px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 2.5rem 2rem;
+  box-shadow: 0 24px 64px rgba(0,0,0,.6);
+}
+.login-logo { text-align: center; margin-bottom: 2rem; }
+.login-logo h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--teal);
+}
+.login-logo p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.login-error {
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+  border-radius: 6px; padding: 8px 12px; font-size: 12px;
+  color: var(--danger); margin-bottom: 12px; min-height: 0;
+}
+.login-error:empty { display: none; }
+.login-footer { text-align: center; margin-top: 12px; }
+.link-btn { background: none; border: none; color: var(--teal); font-size: 12px; cursor: pointer; text-decoration: underline; font-family: 'Barlow', sans-serif; }
+
+/* ── HEADER ── */
+.app-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem; height: 60px;
+  background: var(--bg-card); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50; gap: 1rem;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-divider { width: 1px; height: 22px; background: var(--border); }
+.brand-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.header-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.user-chip { display: flex; align-items: center; gap: 8px; padding: 5px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
+.user-chip-name { font-size: 13px; font-weight: 600; }
+.user-chip-rol { font-size: 10px; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.logout-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all .15s; }
+.logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── PERIOD NAV ── */
+.period-nav { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.period-nav button { background: none; border: none; color: var(--text-muted); width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.period-nav button:hover { background: var(--border); color: var(--text-primary); }
+.period-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+.period-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; min-width: 160px; text-align: center; padding: 0 6px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); height: 32px; line-height: 32px; }
+
+/* ── ICON BTN ── */
+.icon-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 15px; transition: all .15s; }
+.icon-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ── TABS ── */
+.tabs { display: flex; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 1.5rem; }
+.tab-btn { background: none; border: none; padding: 12px 16px; color: var(--text-muted); cursor: pointer; font-size: 13px; font-weight: 600; border-bottom: 2px solid transparent; transition: all .15s; display: flex; align-items: center; gap: 6px; font-family: 'Barlow', sans-serif; }
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── MAIN ── */
+.main { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+
+/* ── STATS ── */
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem 1.25rem; border-top: 2px solid var(--teal); }
+.stat-card.s-ext { border-top-color: var(--warning); }
+.stat-card.s-dob { border-top-color: var(--danger); }
+.stat-card.s-pend { border-top-color: var(--warning); }
+.stat-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.stat-value { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+
+/* ── TABLE CARD ── */
+.table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.table-header { display: flex; align-items: center; justify-content: space-between; padding: .875rem 1.25rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+.table-title { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.table-actions { display: flex; gap: 6px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; padding: 9px 12px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); background: var(--bg); border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(43,191,179,.03); }
+.sub-row td { background: rgba(43,191,179,.02); }
+.time-val { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 500; }
+.work-cell { max-width: 220px; line-height: 1.4; }
+.empty { text-align: center; color: var(--text-muted); padding: 40px; }
+
+/* ── BADGES DE ESTADO ── */
+.badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: .04em; font-family: 'Barlow Condensed', sans-serif; white-space: nowrap; }
+.badge-pend  { background: rgba(249,115,22,.15); color: #f97316; border: 1px solid rgba(249,115,22,.3); }
+.badge-apro  { background: rgba(34,197,94,.15);  color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
+.badge-rech  { background: rgba(239,68,68,.15);  color: var(--danger); border: 1px solid rgba(239,68,68,.3); }
+.badge-admin { background: rgba(43,191,179,.15); color: var(--teal);   border: 1px solid rgba(43,191,179,.3); }
+.badge-colab { background: rgba(147,51,234,.15); color: #a78bfa;       border: 1px solid rgba(147,51,234,.3); }
+
+/* ── MINI BADGES ── */
+.mini-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; display: inline-flex; align-items: center; }
+.mini-badge.ord { background: rgba(43,191,179,.15); color: var(--teal); }
+.mini-badge.ext { background: rgba(249,115,22,.15); color: var(--warning); }
+.mini-badge.dob { background: rgba(239,68,68,.15);  color: var(--danger); }
+
+.horas-group { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* ── ICON BTN SM ── */
+.icon-btn-sm { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; width: 28px; height: 28px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 13px; transition: all .15s; }
+.icon-btn-sm:hover    { border-color: var(--teal);    color: var(--teal); }
+.icon-btn-sm.ok:hover { border-color: var(--green);   color: var(--green); }
+.icon-btn-sm.warn     { border-color: var(--warning);  color: var(--warning); }
+.icon-btn-sm.danger   { border-color: var(--danger);   color: var(--danger); }
+.icon-btn-sm.danger:hover { background: rgba(239,68,68,.1); }
+.btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* ── ADD BTN ── */
+.add-btn { background: var(--teal); color: #0f172a; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background .15s; font-family: 'Barlow', sans-serif; }
+.add-btn:hover { background: var(--teal-dark); }
+.add-btn:disabled { opacity: 0.45; cursor: not-allowed; background: var(--teal); }
+
+/* ── MODAL ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+.modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; box-shadow: 0 24px 80px rgba(0,0,0,.7); }
+.modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+.modal-title i { color: var(--teal); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+.btn-cancel { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 16px; color: var(--text-secondary); font-size: 13px; cursor: pointer; transition: all .15s; font-family: 'Barlow', sans-serif; }
+.btn-cancel:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+.btn-save { background: var(--teal); border: none; border-radius: 6px; padding: 8px 20px; color: #0f172a; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background .15s; font-family: 'Barlow', sans-serif; }
+.btn-save:hover { background: var(--teal-dark); }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+.form-input, .form-textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; color: var(--text-primary); font-size: 13px; font-family: 'Barlow', sans-serif; transition: border-color .15s; }
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(43,191,179,.1); }
+select.form-input { cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 56px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── WORK BLOCK ── */
+.work-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 10px; }
+.work-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.work-block-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); display: flex; align-items: center; gap: 5px; }
+.remove-work-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 2px; }
+.remove-work-btn:hover { color: var(--danger); }
+.add-work-btn { background: none; border: 1px dashed var(--border); border-radius: 6px; width: 100%; padding: 8px; color: var(--text-muted); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all .15s; font-family: 'Barlow', sans-serif; margin-bottom: 14px; }
+.add-work-btn:hover { border-color: var(--teal); color: var(--teal); }
+.hrs-preview { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-muted); padding-top: 6px; }
+.cats-preview { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; margin-bottom: 8px; min-height: 18px; }
+
+/* ── INSTRUCCIONES ── */
+.instrucciones { background: rgba(43,191,179,.06); border: 1px solid rgba(43,191,179,.2); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+.instrucciones strong { color: var(--teal); }
+
+/* ── LEYENDA ── */
+.leyenda { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-top: 1rem; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 18px; font-size: 13px; color: var(--text-primary); display: none; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+
+/* ── FOOTER ── */
+.app-footer { text-align: center; padding: 2rem; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 2rem; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .form-row { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .app-header { flex-wrap: wrap; height: auto; padding: .75rem 1rem; }
+  .main { padding: 1rem; }
+  .period-label { min-width: 120px; }
+}
+
+/* ── BADGE ESTADO PERÍODO ── */
+.periodo-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 6px; font-size: 11px;
+  font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.periodo-badge.activo  { background: rgba(34,197,94,.15);  color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
+.periodo-badge.cerrado { background: rgba(100,116,139,.15); color: #cbd5e1; border: 1px solid rgba(100,116,139,.3); }
+.periodo-badge.sin-periodo { background: rgba(249,115,22,.15); color: var(--warning); border: 1px solid rgba(249,115,22,.3); }
+
+/* ── BANNER PERÍODO CERRADO ── */
+.banner-cerrado {
+  background: rgba(100,116,139,.1); border: 1px solid rgba(100,116,139,.2);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; font-size: 12px;
+}
+.banner-cerrado-text { display: flex; flex-direction: column; gap: 2px; }
+.banner-cerrado-title { font-weight: 700; color: var(--text-secondary); }
+.banner-cerrado-meta  { color: var(--text-muted); font-size: 11px; }
+
+/* ── BANNER SIN PERÍODO ── */
+.banner-sin-periodo {
+  background: rgba(249,115,22,.08); border: 1px solid rgba(249,115,22,.2);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px; font-size: 13px;
+  color: var(--text-secondary);
+}
+.banner-sin-periodo i { color: var(--warning); font-size: 18px; }
+
+/* ── MODAL CIERRE ── */
+.modal-cierre-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.75); align-items: center;
+  justify-content: center; z-index: 110; padding: 1rem;
+}
+.modal-cierre {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; max-width: 500px; width: 100%;
+}
+.modal-cierre-title {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 18px;
+  font-weight: 700; margin-bottom: 12px; letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.modal-cierre-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+.modal-cierre-warning {
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2);
+  border-radius: 6px; padding: 12px; margin-bottom: 20px;
+  font-size: 12px; color: #fca5a5; line-height: 1.4;
+}
+.btn-cierre-confirm {
+  background: var(--danger); border: none; color: white;
+  padding: 8px 16px; border-radius: 6px; cursor: pointer;
+  font-weight: 600; font-size: 12px; font-family: 'Barlow', sans-serif;
+}
+.btn-cierre-confirm:hover { background: #dc2626; }
+
+/* ── MODAL ABRIR PERÍODO ── */
+.modal-abrir-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.75); align-items: center;
+  justify-content: center; z-index: 110; padding: 1rem;
+}
+.modal-abrir {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; max-width: 460px; width: 100%;
+}
+.modal-abrir-title {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 18px;
+  font-weight: 700; margin-bottom: 12px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--teal);
+}
+.btn-abrir-confirm {
+  background: var(--teal); border: none; color: #0f172a;
+  padding: 8px 16px; border-radius: 6px; cursor: pointer;
+  font-weight: 700; font-size: 13px; font-family: 'Barlow', sans-serif;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-abrir-confirm:hover { background: var(--teal-dark); }
+
+/* ── BOTONES DE PERÍODO ── */
+.btn-periodo {
+  background: var(--bg); border: 1px solid var(--border); color: var(--text-primary);
+  padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600;
+  font-size: 13px; font-family: 'Barlow', sans-serif;
+  display: inline-flex; align-items: center; gap: 5px; transition: all .15s;
+}
+.btn-periodo:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+.btn-periodo.danger:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
+.btn-periodo:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── PERIODO INFO ROW ── */
+.periodo-info-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 1.25rem; border-bottom: 1px solid var(--border);
+  background: rgba(43,191,179,.03); font-size: 12px; color: var(--text-muted);
+}
+.periodo-info-row strong { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>Beirute</h1>
+      <p>Refrigeración Industrial — Control de Horas</p>
+    </div>
+    <div id="loginError" class="login-error"></div>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" id="loginEmail" class="form-input" placeholder="usuario@beirute.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input type="password" id="loginPass" class="form-input" placeholder="••••••••">
+    </div>
+    <button class="btn-save" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">
+      <i class="ti ti-login"></i> Ingresar
+    </button>
+    <div class="login-footer">
+      <button class="link-btn" onclick="doReset()">¿Olvidaste tu contraseña?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="appScreen" style="display:none">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-label" style="color:var(--teal);font-size:16px">Beirute</span>
+      <div class="brand-divider"></div>
+      <span class="brand-label" style="color:var(--text-secondary)">Control de Horas</span>
+    </div>
+    <div class="header-right">
+      <!-- Navegación por período -->
+      <div class="period-nav">
+        <button id="btnPeriodoPrev" onclick="changePeriodo(-1)" title="Período anterior"><i class="ti ti-chevron-left"></i></button>
+        <div class="period-label" id="periodoLabel">—</div>
+        <button id="btnPeriodoNext" onclick="changePeriodo(1)" title="Período siguiente"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <button class="icon-btn" onclick="exportXLSX()" title="Exportar Excel">
+        <i class="ti ti-table-export"></i>
+      </button>
+      <div class="user-chip">
+        <div>
+          <div class="user-chip-name" id="userNameDisplay">—</div>
+          <div class="user-chip-rol"  id="userRolDisplay">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()" title="Cerrar sesión">
+        <i class="ti ti-logout"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn" data-tab="tab-registros">
+      <i class="ti ti-clipboard-list"></i> Registros
+    </button>
+    <button class="tab-btn admin-only" data-tab="tab-usuarios" style="display:none">
+      <i class="ti ti-users"></i> Usuarios
+    </button>
+  </div>
+
+  <!-- TAB REGISTROS -->
+  <div id="tab-registros" class="tab-pane">
+    <div class="main">
+      <div class="stats" id="stats"></div>
+
+      <div class="table-card">
+
+        <!-- Banner: sin período activo (solo admin ve esto) -->
+        <div id="bannerSinPeriodo" class="banner-sin-periodo" style="display:none; margin: 0.875rem 1.25rem 0;">
+          <i class="ti ti-alert-triangle"></i>
+          <span>No hay un período activo. <strong>Abrí un nuevo período</strong> para habilitar el ingreso de registros.</span>
+        </div>
+
+        <!-- Banner: período cerrado -->
+        <div id="bannerCerrado" class="banner-cerrado" style="display:none; margin: 0.875rem 1.25rem 0;">
+          <div class="banner-cerrado-text">
+            <div class="banner-cerrado-title">📋 Período Cerrado</div>
+            <div class="banner-cerrado-meta">
+              Cerrado por <span id="cerradoPor">—</span> •
+              <span id="fechaCierre">—</span> •
+              <span id="recordsCerrados">0</span> registros
+            </div>
+          </div>
+          <span class="periodo-badge cerrado">Historial</span>
+        </div>
+
+        <!-- Info del período visible -->
+        <div id="periodoInfoRow" class="periodo-info-row" style="display:none;">
+          <i class="ti ti-calendar-event" style="color:var(--teal)"></i>
+          <span>Período: <strong id="periodoRangoTexto">—</strong></span>
+          <span id="periodoNombreTexto" style="color:var(--teal); font-weight:600"></span>
+        </div>
+
+        <div class="table-header">
+          <span class="table-title">
+            <i class="ti ti-clipboard-list" style="color:var(--teal)"></i>
+            Registros del período
+            <span id="periodoBadge" class="periodo-badge activo" style="margin-left:6px">Activo</span>
+          </span>
+          <div class="table-actions">
+            <!-- Botón ABRIR PERÍODO (solo admin, solo si no hay uno activo) -->
+            <button id="btnAbrirPeriodo" class="btn-periodo admin-only" style="display:none" onclick="openAbrirModal()">
+              <i class="ti ti-lock-open"></i> Abrir Período
+            </button>
+            <!-- Botón CERRAR PERÍODO (solo admin, solo si hay uno activo) -->
+            <button id="btnCierre" class="btn-periodo danger admin-only" style="display:none" onclick="openCierreModal()">
+              <i class="ti ti-lock"></i> Cerrar Período
+            </button>
+            <button class="add-btn" id="btnNuevoRegistro" onclick="openModal()">
+              <i class="ti ti-plus"></i> Nuevo registro
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th id="th-colaborador" style="display:none">Colaborador</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Horas</th>
+                <th>Cliente</th>
+                <th>Trabajo</th>
+                <th>Fase</th>
+                <th>Centro de costos</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="leyenda">
+        <span><span class="mini-badge ord">ord</span> Lun–Vie 7:45–17:30 / Sáb 7:45–12:00</span>
+        <span><span class="mini-badge ext">ext</span> Lun–Vie 6:00–7:45 y 17:30–22:00 / Sáb 12:00–22:00</span>
+        <span><span class="mini-badge dob">dob</span> Domingo (todo el día) / Cualquier día 22:00–6:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB USUARIOS (ADMIN) -->
+  <div id="tab-usuarios" class="tab-pane admin-only" style="display:none">
+    <div class="main">
+      <div class="instrucciones">
+        <strong>¿Cómo crear un usuario?</strong><br>
+        1. Ve a <strong>Firebase Console → Authentication → Agregar usuario</strong> y crea la cuenta con correo y contraseña.<br>
+        2. Copia el <strong>UID</strong> que Firebase asigna al nuevo usuario.<br>
+        3. Usa el formulario de abajo para registrar su perfil en Firestore (nombre, rol, etc.).<br>
+        La próxima vez que ese usuario ingrese, el sistema reconocerá su rol automáticamente.
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title"><i class="ti ti-users" style="color:var(--teal)"></i> Usuarios registrados</span>
+          <button class="add-btn" onclick="openModalUsuario()"><i class="ti ti-plus"></i> Agregar usuario</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th></th></tr></thead>
+            <tbody id="tbodyUsuarios"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">Refrigeración Industrial Beirute — Control de Horas</footer>
+</div>
+
+<!-- ══ MODAL ABRIR PERÍODO ══ -->
+<div class="modal-abrir-bg" id="modalAbrirBg">
+  <div class="modal-abrir">
+    <div class="modal-abrir-title"><i class="ti ti-lock-open"></i> Abrir Nuevo Período</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5">
+      El período iniciará hoy y agrupará todos los registros hasta que lo cerrés manualmente.
+      Podés agregarle un nombre opcional para identificarlo fácilmente.
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre del período <span style="color:var(--text-muted)">(opcional)</span></label>
+      <input type="text" id="abrirNombre" class="form-input" placeholder="Ej: Quincena 1 Agosto, Q3 2026…">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAbrirModal()">Cancelar</button>
+      <button class="btn-abrir-confirm" onclick="confirmarAbrirPeriodo()">
+        <i class="ti ti-lock-open"></i> Abrir Período
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CIERRE DE PERÍODO ══ -->
+<div class="modal-cierre-bg" id="modalCierreBg">
+  <div class="modal-cierre">
+    <div class="modal-cierre-title">⚠ Cerrar Período</div>
+    <div class="modal-cierre-desc">
+      Estás a punto de cerrar el período <strong id="cierrePeriodoNombre"></strong>.
+      Una vez cerrado, no se podrá editar ni agregar registros en ese período.
+    </div>
+    <div class="modal-cierre-warning">
+      <strong>Importante:</strong> Esta acción es irreversible. Asegurate de que todos los registros sean correctos antes de proceder.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCierreModal()">Cancelar</button>
+      <button class="btn-cierre-confirm" onclick="confirmarCierre()">
+        <i class="ti ti-lock"></i> Cerrar Período
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL REGISTRO ══ -->
+<div class="modal-bg" id="modalBg" style="display:none">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-clock-edit"></i><span id="modalTitle">Nuevo registro</span></div>
+    <div class="form-group">
+      <label class="form-label">Fecha</label>
+      <input type="date" id="fFecha" class="form-input" oninput="refreshAllBlocks()">
+    </div>
+    <div id="workBlocks"></div>
+    <button class="add-work-btn" onclick="addNextBlock()">
+      <i class="ti ti-plus"></i> Agregar otro turno
+    </button>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveEntry()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL USUARIO (ADMIN) ══ -->
+<div class="modal-bg" id="modalUsuarioBg" style="display:none">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-user-plus"></i>Agregar perfil de usuario</div>
+    <div class="form-group">
+      <label class="form-label">UID de Firebase Auth</label>
+      <input type="text" id="nuUid" class="form-input" placeholder="Ej: abc123xyz...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre completo</label>
+      <input type="text" id="nuNombre" class="form-input" placeholder="Nombre del colaborador">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" id="nuEmail" class="form-input" placeholder="correo@ejemplo.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Rol</label>
+      <select id="nuRol" class="form-input">
+        <option value="colaborador">Colaborador</option>
+        <option value="admin">Administrador</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModalUsuario()">Cancelar</button>
+      <button class="btn-save" onclick="crearUsuarioPerfil()"><i class="ti ti-check"></i> Guardar perfil</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ FIREBASE SDK MODULAR ══ -->
+<script type="module">
+import { initializeApp }                                              from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut,
+         sendPasswordResetEmail, onAuthStateChanged }                 from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, doc, query, where, orderBy,
+         onSnapshot, addDoc, updateDoc, deleteDoc, getDoc,
+         getDocs, setDoc }                                            from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyDsrra_dLaOz6WIKuzsX14XfvCerYIe8GA",
+  authDomain:        "horas-bodega-e481f.firebaseapp.com",
+  projectId:         "horas-bodega-e481f",
+  storageBucket:     "horas-bodega-e481f.firebasestorage.app",
+  messagingSenderId: "503086134246",
+  appId:             "1:503086134246:web:55fe935fd12d254d72dc27"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── ESTADO GLOBAL ──────────────────────────────────────────
+const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESES_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+let currentUser    = null;
+let userProfile    = null;
+let allRecords     = [];   // todos los registros del usuario (o todos si admin)
+let allPeriodos    = [];   // lista de períodos, ordenados por fecha desc
+let periodoActivo  = null; // período con estado 'activo' (el único posible)
+let periodoVisible = null; // período que se está mostrando en pantalla
+let periodoIdx     = 0;    // índice en allPeriodos del período visible
+let editingId      = null;
+let workBlockCount = 0;
+let unsubRecords   = null;
+let unsubPeriodos  = null;
+
+// ── CÁLCULO DE HORAS ───────────────────────────────────────
+function toMin(t) {
+  if (!t) return null;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function calcCategories(startStr, endStr, dateStr) {
+  if (!startStr || !endStr || !dateStr) return { ordinaria: 0, extra: 0, doble: 0 };
+  const dow = new Date(dateStr + 'T12:00:00').getDay();
+  let sMin = toMin(startStr);
+  let eMin = toMin(endStr);
+  if (eMin <= sMin) eMin += 1440;
+
+  let ord = 0, ext = 0, dob = 0;
+  for (let m = sMin; m < eMin; m++) {
+    const minOfDay  = m % 1440;
+    const hod       = minOfDay / 60;
+    const actualDow = m >= 1440 ? (dow + 1) % 7 : dow;
+    let cat = 'doble';
+
+    if (actualDow === 0) {
+      cat = 'doble';
+    } else if (actualDow === 6) {
+      if      (hod >= 7.75 && hod < 12) cat = 'ordinaria';
+      else if (hod >= 12   && hod < 22) cat = 'extra';
+      else                              cat = 'doble';
+    } else {
+      if      (hod >= 7.75 && hod < 17.5)                    cat = 'ordinaria';
+      else if ((hod >= 6 && hod < 7.75) || (hod >= 17.5 && hod < 22)) cat = 'extra';
+      else                                                    cat = 'doble';
+    }
+
+    if      (cat === 'ordinaria') ord++;
+    else if (cat === 'extra')     ext++;
+    else                          dob++;
+  }
+  return { ordinaria: ord / 60, extra: ext / 60, doble: dob / 60 };
+}
+
+function totalCats(record) {
+  let ord = 0, ext = 0, dob = 0;
+  (record.turnos || []).forEach(t => {
+    const c = calcCategories(t.entrada, t.salida, record.fecha);
+    ord += c.ordinaria; ext += c.extra; dob += c.doble;
+  });
+  return { ordinaria: ord, extra: ext, doble: dob };
+}
+
+function fmtH(h)   { return h > 0.005 ? h.toFixed(2) + 'h' : '—'; }
+function catsBadges(cats) {
+  return [
+    cats.ordinaria > 0.005 ? `<span class="mini-badge ord">${cats.ordinaria.toFixed(2)}h ord</span>` : '',
+    cats.extra     > 0.005 ? `<span class="mini-badge ext">${cats.extra.toFixed(2)}h ext</span>`     : '',
+    cats.doble     > 0.005 ? `<span class="mini-badge dob">${cats.doble.toFixed(2)}h dob</span>`     : '',
+  ].join('');
+}
+
+// ── TOAST ──────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+window.showToast = showToast;
+
+// ── AUTH ───────────────────────────────────────────────────
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('loginError');
+  err.textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    err.textContent = 'Correo o contraseña incorrectos.';
+  }
+};
+
+window.doLogout = async function() {
+  if (unsubRecords)  unsubRecords();
+  if (unsubPeriodos) unsubPeriodos();
+  await signOut(auth);
+};
+
+window.doReset = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) { document.getElementById('loginError').textContent = 'Ingresa tu correo primero.'; return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showToast('✓ Correo de recuperación enviado');
+  } catch(e) {
+    document.getElementById('loginError').textContent = 'No se pudo enviar el correo.';
+  }
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userProfile = snap.exists()
+      ? snap.data()
+      : { nombre: user.email, rol: 'colaborador', email: user.email };
+    showApp();
+  } else {
+    currentUser = null; userProfile = null;
+    allPeriodos = []; periodoActivo = null; periodoVisible = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display   = 'none';
+  }
+});
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display   = 'block';
+  document.getElementById('userNameDisplay').textContent = userProfile?.nombre || currentUser.email;
+  document.getElementById('userRolDisplay').textContent  =
+    userProfile?.rol === 'admin' ? 'Administrador' : 'Colaborador';
+
+  const isAdmin = userProfile?.rol === 'admin';
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  const thColab = document.getElementById('th-colaborador');
+  if (thColab) thColab.style.display = isAdmin ? '' : 'none';
+
+  initTabs();
+  subscribePeriodos();   // suscripción a períodos → dispara subscribeRecords()
+  if (isAdmin) loadUsuariosAdmin();
+}
+
+// ── PERÍODOS (suscripción realtime) ────────────────────────
+function subscribePeriodos() {
+  if (unsubPeriodos) unsubPeriodos();
+
+  // Todos leen la colección periodos (regla: read si auth != null)
+  const q = query(collection(db, 'periodos'), orderBy('fechaInicio', 'desc'));
+
+  unsubPeriodos = onSnapshot(q, snap => {
+    allPeriodos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    periodoActivo = allPeriodos.find(p => p.estado === 'activo') || null;
+
+    // Si no hay periodoVisible aún, apuntar al activo (o al primero)
+    if (!periodoVisible) {
+      periodoVisible = periodoActivo || allPeriodos[0] || null;
+      periodoIdx     = periodoVisible ? allPeriodos.indexOf(periodoVisible) : 0;
+    } else {
+      // Refrescar la referencia por id
+      const found = allPeriodos.find(p => p.id === periodoVisible.id);
+      if (found) {
+        periodoVisible = found;
+        periodoIdx     = allPeriodos.indexOf(found);
+      }
+    }
+
+    subscribeRecords();
+    actualizarNavPeriodo();
+    actualizarUIPeriodo();
+  }, err => {
+    showToast('⚠ Error al cargar períodos: ' + err.code);
+  });
+}
+
+// ── REGISTROS (suscripción filtrada por período) ────────────
+function subscribeRecords() {
+  if (unsubRecords) unsubRecords();
+  const isAdmin = userProfile?.rol === 'admin';
+
+  let q;
+  if (!periodoVisible) {
+    // Sin período: lista vacía
+    allRecords = [];
+    renderTabla();
+    renderStats();
+    return;
+  }
+
+  if (isAdmin) {
+    q = query(
+      collection(db, 'registros'),
+      where('periodoId', '==', periodoVisible.id),
+      orderBy('fecha', 'desc')
+    );
+  } else {
+    q = query(
+      collection(db, 'registros'),
+      where('periodoId', '==', periodoVisible.id),
+      where('uid', '==', currentUser.uid)
+    );
+  }
+
+  unsubRecords = onSnapshot(q, snap => {
+    allRecords = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(r => isAdmin || r.uid === currentUser.uid);
+    renderTabla();
+    renderStats();
+  }, err => {
+    showToast('⚠ Error al cargar registros: ' + err.code);
+    console.error('Firestore error:', err.message || err);
+  });
+}
+
+// ── NAVEGACIÓN ENTRE PERÍODOS ──────────────────────────────
+// allPeriodos está ordenado DESC (más reciente primero)
+// índice 0 = más reciente, índice n-1 = más antiguo
+window.changePeriodo = function(delta) {
+  // delta = -1 → ir al anterior (más antiguo = idx+1)
+  // delta = +1 → ir al siguiente (más reciente = idx-1)
+  const newIdx = periodoIdx + (-delta); // invertido porque array es DESC
+  if (newIdx < 0 || newIdx >= allPeriodos.length) return;
+  periodoIdx     = newIdx;
+  periodoVisible = allPeriodos[periodoIdx];
+  subscribeRecords();
+  actualizarNavPeriodo();
+  actualizarUIPeriodo();
+};
+
+function actualizarNavPeriodo() {
+  const prev = document.getElementById('btnPeriodoPrev');
+  const next = document.getElementById('btnPeriodoNext');
+  const label = document.getElementById('periodoLabel');
+
+  if (!periodoVisible) {
+    if (label) label.textContent = 'Sin períodos';
+    if (prev) prev.disabled = true;
+    if (next) next.disabled = true;
+    return;
+  }
+
+  // Etiqueta: "Nombre" o rango de fechas
+  if (periodoVisible.nombre) {
+    if (label) label.textContent = periodoVisible.nombre;
+  } else {
+    const fi = formatFechaCorta(periodoVisible.fechaInicio);
+    const ff = periodoVisible.fechaFin ? formatFechaCorta(periodoVisible.fechaFin) : 'hoy';
+    if (label) label.textContent = `${fi} – ${ff}`;
+  }
+
+  // Deshabilitar flechas en los extremos
+  // ← anterior = más antiguo = idx+1 en array DESC
+  if (prev) prev.disabled = (periodoIdx >= allPeriodos.length - 1);
+  // → siguiente = más reciente = idx-1 en array DESC
+  if (next) next.disabled = (periodoIdx <= 0);
+}
+
+function actualizarUIPeriodo() {
+  const isAdmin  = userProfile?.rol === 'admin';
+  const esCerrado = periodoVisible?.estado === 'cerrado';
+  const esActivo  = periodoVisible?.estado === 'activo';
+  const sinPeriodo = !periodoVisible;
+
+  // Badge
+  const badge = document.getElementById('periodoBadge');
+  if (badge) {
+    if (sinPeriodo)  { badge.textContent = 'Sin período'; badge.className = 'periodo-badge sin-periodo'; }
+    else if (esCerrado) { badge.textContent = 'Cerrado';  badge.className = 'periodo-badge cerrado'; }
+    else             { badge.textContent = 'Activo';      badge.className = 'periodo-badge activo'; }
+  }
+
+  // Fila info del período
+  const infoRow = document.getElementById('periodoInfoRow');
+  if (infoRow) {
+    if (periodoVisible) {
+      infoRow.style.display = 'flex';
+      const fi = formatFechaLarga(periodoVisible.fechaInicio);
+      const ff = periodoVisible.fechaFin ? formatFechaLarga(periodoVisible.fechaFin) : 'en curso';
+      document.getElementById('periodoRangoTexto').textContent = `${fi} → ${ff}`;
+      document.getElementById('periodoNombreTexto').textContent = periodoVisible.nombre || '';
+    } else {
+      infoRow.style.display = 'none';
+    }
+  }
+
+  // Banner sin período (solo admin)
+  const bannerSin = document.getElementById('bannerSinPeriodo');
+  if (bannerSin) bannerSin.style.display = (sinPeriodo && isAdmin) ? 'flex' : 'none';
+
+  // Banner cerrado
+  const bannerCer = document.getElementById('bannerCerrado');
+  if (bannerCer) {
+    if (esCerrado && periodoVisible) {
+      const fechaObj = periodoVisible.fechaCierre?.toDate?.() || new Date(periodoVisible.fechaCierre);
+      document.getElementById('cerradoPor').textContent      = periodoVisible.cerradoPor_nombre || 'Sistema';
+      document.getElementById('fechaCierre').textContent     = fechaObj.toLocaleDateString('es-CR');
+      document.getElementById('recordsCerrados').textContent = periodoVisible.registrosCerrados || 0;
+      bannerCer.style.display = 'flex';
+    } else {
+      bannerCer.style.display = 'none';
+    }
+  }
+
+  // Botón ABRIR PERÍODO — solo admin, solo si no existe uno activo
+  const btnAbrir = document.getElementById('btnAbrirPeriodo');
+  if (btnAbrir) {
+    btnAbrir.style.display = isAdmin ? '' : 'none';
+    btnAbrir.style.display = (isAdmin && !periodoActivo) ? '' : 'none';
+  }
+
+  // Botón CERRAR PERÍODO — solo admin, solo si estamos viendo el activo
+  const btnCierre = document.getElementById('btnCierre');
+  if (btnCierre) {
+    const mostrar = isAdmin && esActivo && periodoVisible?.id === periodoActivo?.id;
+    btnCierre.style.display = mostrar ? '' : 'none';
+  }
+
+  // Botón Nuevo registro — deshabilitado si no hay período activo O si vemos un período cerrado
+  const btnNuevo = document.getElementById('btnNuevoRegistro');
+  if (btnNuevo) {
+    const puedeAgregar = periodoActivo && (periodoVisible?.id === periodoActivo?.id);
+    btnNuevo.disabled      = !puedeAgregar;
+    btnNuevo.style.opacity = puedeAgregar ? '1' : '0.45';
+    btnNuevo.title         = !periodoActivo ? 'No hay período activo' : (!puedeAgregar ? 'Navegá al período activo para agregar registros' : '');
+  }
+}
+
+// ── ABRIR PERÍODO ──────────────────────────────────────────
+window.openAbrirModal = function() {
+  if (periodoActivo) { showToast('⚠ Ya existe un período activo'); return; }
+  document.getElementById('abrirNombre').value = '';
+  document.getElementById('modalAbrirBg').style.display = 'flex';
+};
+
+window.closeAbrirModal = function() {
+  document.getElementById('modalAbrirBg').style.display = 'none';
+};
+
+window.confirmarAbrirPeriodo = async function() {
+  if (!currentUser || userProfile?.rol !== 'admin') return;
+  if (periodoActivo) { showToast('⚠ Ya existe un período activo'); closeAbrirModal(); return; }
+  const nombre = document.getElementById('abrirNombre').value.trim();
+  try {
+    const ref = await addDoc(collection(db, 'periodos'), {
+      nombre:          nombre || '',
+      estado:          'activo',
+      fechaInicio:     new Date().toISOString().split('T')[0], // YYYY-MM-DD
+      fechaFin:        null,
+      creadoPor:       currentUser.uid,
+      creadoPor_nombre: userProfile?.nombre || currentUser.email,
+      creadoEn:        new Date(),
+    });
+    showToast('✓ Período abierto');
+    closeAbrirModal();
+    // Navegar automáticamente al nuevo período activo
+    // (el onSnapshot de periodos lo detectará y actualizará periodoActivo)
+  } catch(e) {
+    showToast('✗ Error al abrir período: ' + e.message);
+  }
+};
+
+// ── CERRAR PERÍODO ─────────────────────────────────────────
+window.openCierreModal = function() {
+  if (!periodoActivo) { showToast('⚠ No hay período activo'); return; }
+  const nombre = periodoActivo.nombre || formatFechaLarga(periodoActivo.fechaInicio);
+  document.getElementById('cierrePeriodoNombre').textContent = nombre;
+  document.getElementById('modalCierreBg').style.display = 'flex';
+};
+
+window.closeCierreModal = function() {
+  document.getElementById('modalCierreBg').style.display = 'none';
+};
+
+window.confirmarCierre = async function() {
+  if (!currentUser || !periodoActivo) return;
+
+  // Contar registros del período
+  const snap = await getDocs(
+    query(collection(db, 'registros'), where('periodoId', '==', periodoActivo.id))
+  );
+
+  try {
+    const hoy = new Date().toISOString().split('T')[0];
+    await updateDoc(doc(db, 'periodos', periodoActivo.id), {
+      estado:            'cerrado',
+      fechaFin:          hoy,
+      fechaCierre:       new Date(),
+      cerradoPor:        currentUser.uid,
+      cerradoPor_nombre: userProfile?.nombre || currentUser.email,
+      registrosCerrados: snap.size,
+    });
+
+    // Marcar los registros como periodo_cerrado = true
+    if (!snap.empty) {
+      await Promise.all(snap.docs.map(d =>
+        updateDoc(doc(db, 'registros', d.id), {
+          periodo_cerrado:      true,
+          fecha_cierre_periodo: new Date(),
+        })
+      ));
+    }
+
+    showToast('✓ Período cerrado correctamente');
+    closeCierreModal();
+  } catch(err) {
+    showToast('✗ Error al cerrar período: ' + err.message);
+    console.error(err);
+  }
+};
+
+// ── FIRESTORE — REGISTROS ──────────────────────────────────
+async function saveRecord(data) {
+  if (!periodoActivo) {
+    showToast('✗ No hay período activo. El admin debe abrir uno.');
+    throw new Error('Sin período activo');
+  }
+  if (periodoVisible?.id !== periodoActivo?.id) {
+    showToast('✗ Solo podés guardar registros en el período activo');
+    throw new Error('Período cerrado');
+  }
+  if (editingId) {
+    await updateDoc(doc(db, 'registros', editingId), { ...data, actualizadoEn: new Date().toISOString() });
+    showToast('✓ Registro actualizado');
+  } else {
+    await addDoc(collection(db, 'registros'), {
+      ...data,
+      uid:               currentUser.uid,
+      nombreColaborador: userProfile?.nombre || currentUser.email,
+      periodoId:         periodoActivo.id,
+      estado:            'pendiente',
+      creadoEn:          new Date().toISOString(),
+    });
+    showToast('✓ Registro guardado');
+  }
+}
+
+window.deleteRecord = async function(id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  await deleteDoc(doc(db, 'registros', id));
+  showToast('✓ Registro eliminado');
+};
+
+window.aprobarRegistro = async function(id) {
+  await updateDoc(doc(db, 'registros', id), {
+    estado: 'aprobado', revisadoEn: new Date().toISOString(),
+    revisadoPor: userProfile?.nombre || currentUser.email,
+    motivoRechazo: ''
+  });
+  showToast('✓ Registro aprobado');
+};
+
+window.rechazarRegistro = async function(id) {
+  const motivo = prompt('Motivo del rechazo (opcional):') || '';
+  await updateDoc(doc(db, 'registros', id), {
+    estado: 'rechazado', motivoRechazo: motivo,
+    revisadoEn: new Date().toISOString(),
+    revisadoPor: userProfile?.nombre || currentUser.email,
+  });
+  showToast('✗ Registro rechazado');
+};
+
+// ── USUARIOS (ADMIN) ───────────────────────────────────────
+async function loadUsuariosAdmin() {
+  const snap = await getDocs(collection(db, 'users'));
+  renderUsuarios(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+}
+
+function renderUsuarios(list) {
+  const tbody = document.getElementById('tbodyUsuarios');
+  if (!tbody) return;
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="4" class="empty">Sin usuarios registrados</td></tr>`; return; }
+  tbody.innerHTML = list.map(u => `
+    <tr>
+      <td>${u.nombre||'—'}</td>
+      <td style="color:var(--text-muted)">${u.email||'—'}</td>
+      <td><span class="badge ${u.rol==='admin'?'badge-admin':'badge-colab'}">${u.rol==='admin'?'Admin':'Colaborador'}</span></td>
+      <td>
+        <div class="btn-group">
+          <button class="icon-btn-sm" title="Cambiar rol" onclick="toggleRol('${u.id}','${u.rol}')"><i class="ti ti-switch-horizontal"></i></button>
+          <button class="icon-btn-sm danger" title="Eliminar" onclick="eliminarUsuarioDoc('${u.id}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+window.toggleRol = async function(uid, rol) {
+  const newRol = rol === 'admin' ? 'colaborador' : 'admin';
+  if (!confirm(`¿Cambiar a ${newRol === 'admin' ? 'Administrador' : 'Colaborador'}?`)) return;
+  await updateDoc(doc(db, 'users', uid), { rol: newRol });
+  showToast('✓ Rol actualizado'); loadUsuariosAdmin();
+};
+
+window.eliminarUsuarioDoc = async function(uid) {
+  if (!confirm('¿Eliminar este perfil? (solo Firestore, no la cuenta de Auth)')) return;
+  await deleteDoc(doc(db, 'users', uid));
+  showToast('✓ Perfil eliminado'); loadUsuariosAdmin();
+};
+
+window.crearUsuarioPerfil = async function() {
+  const uid    = document.getElementById('nuUid').value.trim();
+  const nombre = document.getElementById('nuNombre').value.trim();
+  const email  = document.getElementById('nuEmail').value.trim();
+  const rol    = document.getElementById('nuRol').value;
+  if (!uid || !nombre || !email) { showToast('⚠ Completa todos los campos'); return; }
+  await setDoc(doc(db, 'users', uid), { nombre, email, rol });
+  showToast('✓ Perfil creado en Firestore');
+  ['nuUid','nuNombre','nuEmail'].forEach(id => document.getElementById(id).value = '');
+  loadUsuariosAdmin();
+  closeModalUsuario();
+};
+
+// ── RENDER TABLA ───────────────────────────────────────────
+function getFiltered() {
+  const isAdmin = userProfile?.rol === 'admin';
+  return allRecords
+    .filter(r => {
+      if (!r.fecha || !r.uid) return false;
+      if (!isAdmin && r.uid !== currentUser?.uid) return false;
+      return true;
+    })
+    .sort((a, b) => a.fecha.localeCompare(b.fecha));
+}
+
+function renderStats() {
+  const rows = getFiltered();
+  let ord = 0, ext = 0, dob = 0;
+  rows.forEach(r => { const c = totalCats(r); ord += c.ordinaria; ext += c.extra; dob += c.doble; });
+  const pend = rows.filter(r => r.estado === 'pendiente').length;
+  const el = document.getElementById('stats');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${(ord+ext+dob).toFixed(1)}h</div></div>
+    <div class="stat-card"><div class="stat-label">Ordinarias</div><div class="stat-value">${ord.toFixed(1)}h</div></div>
+    <div class="stat-card s-ext"><div class="stat-label">Extra</div><div class="stat-value">${ext.toFixed(1)}h</div></div>
+    <div class="stat-card s-dob"><div class="stat-label">Doble</div><div class="stat-value">${dob.toFixed(1)}h</div></div>
+    <div class="stat-card s-pend"><div class="stat-label">Pendientes</div><div class="stat-value">${pend}</div></div>
+  `;
+}
+
+function renderTabla() {
+  const rows    = getFiltered();
+  const tbody   = document.getElementById('tbody');
+  const isAdmin = userProfile?.rol === 'admin';
+  if (!tbody) return;
+
+  const thColab = document.getElementById('th-colaborador');
+  if (thColab) thColab.style.display = isAdmin ? '' : 'none';
+
+  if (!periodoVisible) {
+    const cols = isAdmin ? 11 : 10;
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="empty"><i class="ti ti-calendar-off"></i> No hay períodos registrados aún</td></tr>`;
+    return;
+  }
+
+  if (!rows.length) {
+    const cols = isAdmin ? 11 : 10;
+    const nombre = periodoVisible.nombre || 'este período';
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="empty"><i class="ti ti-calendar-off"></i> Sin registros en ${nombre}</td></tr>`;
+    return;
+  }
+
+  let html = '';
+  rows.forEach(r => {
+    const cats   = totalCats(r);
+    const tot    = cats.ordinaria + cats.extra + cats.doble;
+    const turnos = r.turnos || [];
+    const t0     = turnos[0] || {};
+    const d      = new Date(r.fecha + 'T12:00:00');
+    const diaStr = DIAS[d.getDay()];
+    const fechaStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+
+    const estadoMap = {
+      pendiente: ['badge-pend', 'ti-clock',        'Pendiente'],
+      aprobado:  ['badge-apro', 'ti-circle-check', 'Aprobado'],
+      rechazado: ['badge-rech', 'ti-x-circle',     'Rechazado'],
+    };
+    const [eCls, eIco, eTxt] = estadoMap[r.estado] || estadoMap.pendiente;
+    const tipRechazo = (r.estado === 'rechazado' && r.motivoRechazo)
+      ? ` title="Motivo: ${r.motivoRechazo}"` : '';
+
+    const canEdit = isAdmin || (r.uid === currentUser?.uid && (r.estado === 'pendiente' || r.estado === 'rechazado'));
+    // Editar solo si el período sigue activo
+    const puedeEditar = canEdit && periodoVisible?.estado === 'activo';
+    const editTitle = r.estado === 'rechazado' ? 'Corregir' : 'Editar';
+
+    const acciones = `
+      ${puedeEditar ? `<button class="icon-btn-sm" title="${editTitle}" onclick="openModalEdit('${r.id}')"><i class="ti ti-pencil"></i></button>` : ''}
+      ${isAdmin && r.estado === 'pendiente' ? `<button class="icon-btn-sm ok"    title="Aprobar"  onclick="aprobarRegistro('${r.id}')"><i class="ti ti-check"></i></button>` : ''}
+      ${isAdmin && r.estado === 'pendiente' ? `<button class="icon-btn-sm danger" title="Rechazar" onclick="rechazarRegistro('${r.id}')"><i class="ti ti-x"></i></button>` : ''}
+      ${isAdmin ? `<button class="icon-btn-sm danger" title="Eliminar" onclick="deleteRecord('${r.id}')"><i class="ti ti-trash"></i></button>` : ''}
+    `;
+
+    const rs = turnos.length > 1 ? ` rowspan="${turnos.length}"` : '';
+    html += `<tr>
+      <td${rs} style="white-space:nowrap">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600">${fechaStr}</div>
+        <div style="font-size:10px;color:var(--teal);text-transform:uppercase;font-weight:700;letter-spacing:.05em">${diaStr}</div>
+      </td>
+      ${isAdmin ? `<td${rs} style="font-size:12px;color:var(--text-muted)">${r.nombreColaborador||'—'}</td>` : ''}
+      <td><div class="time-val">${t0.entrada||'—'}</div></td>
+      <td><div class="time-val">${t0.salida||'—'}</div></td>
+      <td${rs}>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700">${fmtH(tot)}</div>
+        <div class="horas-group">${catsBadges(cats)}</div>
+      </td>
+      <td>${t0.cliente||'—'}</td>
+      <td class="work-cell">${t0.trabajo||'—'}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${t0.fase||'—'}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${t0.centro||'—'}</td>
+      <td${rs}><span class="badge ${eCls}"${tipRechazo}><i class="ti ${eIco}"></i>${eTxt}</span></td>
+      <td${rs}><div class="btn-group">${acciones}</div></td>
+    </tr>`;
+
+    for (let i = 1; i < turnos.length; i++) {
+      const t = turnos[i];
+      html += `<tr class="sub-row">
+        <td></td>
+        ${isAdmin ? '<td></td>' : ''}
+        <td><div class="time-val" style="color:var(--text-muted)">${t.entrada||'—'}</div></td>
+        <td><div class="time-val" style="color:var(--text-muted)">${t.salida||'—'}</div></td>
+        <td></td>
+        <td style="color:var(--text-muted)"><i class="ti ti-corner-down-right" style="color:var(--teal);margin-right:4px"></i>${t.cliente||'—'}</td>
+        <td class="work-cell" style="color:var(--text-muted)">${t.trabajo||'—'}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${t.fase||'—'}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${t.centro||'—'}</td>
+        <td></td>
+        <td></td>
+      </tr>`;
+    }
+  });
+  tbody.innerHTML = html;
+}
+
+// ── MODAL REGISTRO ─────────────────────────────────────────
+window.openModal = function() {
+  if (!periodoActivo) { showToast('⚠ No hay período activo'); return; }
+  editingId = null; workBlockCount = 0;
+  document.getElementById('workBlocks').innerHTML = '';
+  document.getElementById('modalTitle').textContent = 'Nuevo registro';
+  const today = new Date();
+  document.getElementById('fFecha').value =
+    `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  addWorkBlock({}, '07:45');
+  document.getElementById('modalBg').style.display = 'flex';
+};
+
+window.openModalEdit = function(id) {
+  const r = allRecords.find(x => x.id === id);
+  if (!r) return;
+  editingId = id; workBlockCount = 0;
+  document.getElementById('workBlocks').innerHTML = '';
+  document.getElementById('modalTitle').textContent = 'Editar registro';
+  document.getElementById('fFecha').value = r.fecha;
+  (r.turnos||[]).forEach(t => addWorkBlock(t, ''));
+  if (!(r.turnos?.length)) addWorkBlock({}, '07:45');
+  document.getElementById('modalBg').style.display = 'flex';
+};
+
+window.closeModal = function() {
+  document.getElementById('modalBg').style.display = 'none';
+  editingId = null;
+};
+
+window.saveEntry = async function() {
+  const fecha = document.getElementById('fFecha').value;
+  if (!fecha) { showToast('⚠ Selecciona una fecha'); return; }
+  const turnos = getWorkBlocks();
+  if (!turnos.length) { showToast('⚠ Agrega al menos un turno con hora de inicio y fin'); return; }
+  try {
+    await saveRecord({ fecha, turnos });
+    closeModal();
+  } catch(e) {
+    showToast('⚠ Error al guardar: ' + e.message);
+  }
+};
+
+function addWorkBlock(data, autoStart) {
+  workBlockCount++;
+  const num = workBlockCount;
+  const c = data || {};
+  const defEntrada = c.entrada || autoStart || '';
+  const defSalida  = c.salida  || '';
+  const div = document.createElement('div');
+  div.className = 'work-block'; div.id = `wb_${num}`;
+  div.innerHTML = `
+    <div class="work-block-header">
+      <span class="work-block-label"><i class="ti ti-clock"></i> Turno #${num}</span>
+      ${num > 1 ? `<button class="remove-work-btn" onclick="removeWorkBlock(${num})"><i class="ti ti-x"></i></button>` : ''}
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label"><i class="ti ti-clock-play" style="color:var(--teal)"></i> Hora inicio</label>
+        <input type="time" id="wb_entrada_${num}" class="form-input" value="${defEntrada}" oninput="updateBlockHours(${num})">
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="ti ti-clock-stop" style="color:var(--danger)"></i> Hora fin</label>
+        <input type="time" id="wb_salida_${num}" class="form-input" value="${defSalida}" oninput="updateBlockHours(${num}); autoFillNext(${num})">
+      </div>
+      <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
+        <label class="form-label">Total</label>
+        <div class="hrs-preview" id="wb_hrs_${num}">—</div>
+      </div>
+    </div>
+    <div class="cats-preview" id="wb_cats_${num}"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Cliente</label>
+        <input type="text" id="wb_cliente_${num}" class="form-input" placeholder="Nombre del cliente" value="${c.cliente||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Trabajo realizado</label>
+        <input type="text" id="wb_trabajo_${num}" class="form-input" placeholder="Descripción del trabajo" value="${c.trabajo||''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Fase</label>
+        <input type="text" id="wb_fase_${num}" class="form-input" placeholder="Diseño / Ejecución / Cierre" value="${c.fase||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Centro de costos</label>
+        <input type="text" id="wb_centro_${num}" class="form-input" placeholder="Centro de costos" value="${c.centro||''}">
+      </div>
+    </div>
+  `;
+  document.getElementById('workBlocks').appendChild(div);
+  if (defEntrada && defSalida) updateBlockHours(num);
+}
+
+window.updateBlockHours = function(num) {
+  const e     = document.getElementById(`wb_entrada_${num}`)?.value;
+  const s     = document.getElementById(`wb_salida_${num}`)?.value;
+  const fecha = document.getElementById('fFecha')?.value;
+  const hEl   = document.getElementById(`wb_hrs_${num}`);
+  const cEl   = document.getElementById(`wb_cats_${num}`);
+  if (!hEl) return;
+  if (!e || !s || !fecha) { hEl.textContent = '—'; hEl.style.color = 'var(--text-muted)'; if(cEl) cEl.innerHTML = ''; return; }
+  const cats = calcCategories(e, s, fecha);
+  const tot  = cats.ordinaria + cats.extra + cats.doble;
+  hEl.textContent = tot > 0 ? tot.toFixed(2) + 'h' : '—';
+  hEl.style.color = tot > 0 ? 'var(--teal)' : 'var(--text-muted)';
+  if (cEl) cEl.innerHTML = catsBadges(cats);
+};
+
+window.refreshAllBlocks = function() {
+  for (let i = 1; i <= workBlockCount; i++) {
+    if (document.getElementById(`wb_${i}`)) updateBlockHours(i);
+  }
+};
+
+window.autoFillNext = function(num) {
+  const s = document.getElementById(`wb_salida_${num}`)?.value;
+  if (!s) return;
+  const next = document.getElementById(`wb_entrada_${num+1}`);
+  if (next && !next.value) { next.value = s; updateBlockHours(num+1); }
+};
+
+window.removeWorkBlock = function(num) {
+  const el = document.getElementById(`wb_${num}`); if(el) el.remove();
+};
+
+window.addNextBlock = function() {
+  const lastSalida = document.getElementById(`wb_salida_${workBlockCount}`)?.value || '';
+  addWorkBlock({}, lastSalida);
+};
+
+function getWorkBlocks() {
+  return Array.from(document.getElementById('workBlocks').querySelectorAll('.work-block'))
+    .map(b => {
+      const id = b.id.replace('wb_', '');
+      const entrada = document.getElementById(`wb_entrada_${id}`)?.value || '';
+      const salida  = document.getElementById(`wb_salida_${id}`)?.value  || '';
+      if (!entrada || !salida) return null;
+      return {
+        entrada, salida,
+        cliente: document.getElementById(`wb_cliente_${id}`)?.value || '',
+        trabajo: document.getElementById(`wb_trabajo_${id}`)?.value || '',
+        fase:    document.getElementById(`wb_fase_${id}`)?.value    || '',
+        centro:  document.getElementById(`wb_centro_${id}`)?.value  || '',
+      };
+    }).filter(Boolean);
+}
+
+// ── MODAL USUARIO ──────────────────────────────────────────
+window.openModalUsuario = function() {
+  ['nuUid','nuNombre','nuEmail'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nuRol').value = 'colaborador';
+  document.getElementById('modalUsuarioBg').style.display = 'flex';
+};
+window.closeModalUsuario = function() {
+  document.getElementById('modalUsuarioBg').style.display = 'none';
+};
+
+// ── TABS ───────────────────────────────────────────────────
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab)?.classList.add('active');
+      if (btn.dataset.tab === 'tab-usuarios') loadUsuariosAdmin();
+    });
+  });
+  document.querySelector('.tab-btn')?.click();
+}
+
+// ── EXPORTAR XLSX ──────────────────────────────────────────
+window.exportXLSX = function() {
+  const rows    = getFiltered();
+  const isAdmin = userProfile?.rol === 'admin';
+  if (!rows.length) { showToast('⚠ Sin datos para exportar'); return; }
+
+  const loadXLSX = new Promise(res => {
+    if (window.XLSX) { res(window.XLSX); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = () => res(window.XLSX); s.onerror = () => res(null);
+    document.head.appendChild(s);
+  });
+
+  loadXLSX.then(XLSX => {
+    if (!XLSX) { showToast('No se pudo cargar librería XLSX'); return; }
+    const data = rows.flatMap(r => {
+      const d    = new Date(r.fecha + 'T12:00:00');
+      const fStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+      const dia  = DIAS[d.getDay()];
+      return (r.turnos || []).map((t, i) => {
+        const cats = calcCategories(t.entrada, t.salida, r.fecha);
+        const row = { 'Fecha': fStr, 'Día': dia };
+        if (isAdmin) row['Colaborador'] = r.nombreColaborador || '';
+        row['Entrada']          = t.entrada || '';
+        row['Salida']           = t.salida  || '';
+        row['Ordinarias (h)']   = i === 0 ? cats.ordinaria.toFixed(2) : '';
+        row['Extra (h)']        = i === 0 ? cats.extra.toFixed(2)     : '';
+        row['Doble (h)']        = i === 0 ? cats.doble.toFixed(2)     : '';
+        row['Total (h)']        = i === 0 ? (cats.ordinaria+cats.extra+cats.doble).toFixed(2) : '';
+        row['Cliente']          = t.cliente || '';
+        row['Trabajo']          = t.trabajo || '';
+        row['Fase']             = t.fase    || '';
+        row['Centro de costos'] = t.centro  || '';
+        row['Estado']           = i === 0 ? (r.estado || 'pendiente') : '';
+        return row;
+      });
+    });
+
+    const periodoNombre = periodoVisible?.nombre || periodoVisible?.fechaInicio || 'periodo';
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, periodoNombre.slice(0, 31));
+    XLSX.writeFile(wb, `beirute_horas_${periodoNombre.replace(/\s/g,'_')}.xlsx`);
+    showToast('✓ Excel descargado');
+  });
+};
+
+// ── HELPERS DE FECHA ───────────────────────────────────────
+function formatFechaCorta(fechaStr) {
+  if (!fechaStr) return '—';
+  const d = new Date(fechaStr + 'T12:00:00');
+  return `${d.getDate()} ${MESES[d.getMonth()]}`;
+}
+
+function formatFechaLarga(fechaStr) {
+  if (!fechaStr) return '—';
+  const d = new Date(fechaStr + 'T12:00:00');
+  return `${d.getDate()} ${MESES_FULL[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// ── CERRAR MODALES AL CLICK FUERA ─────────────────────────
+document.getElementById('loginPass')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('modalBg')?.addEventListener('click', e => {
+  if (e.target.id === 'modalBg') closeModal();
+});
+document.getElementById('modalUsuarioBg')?.addEventListener('click', e => {
+  if (e.target.id === 'modalUsuarioBg') closeModalUsuario();
+});
+document.getElementById('modalCierreBg')?.addEventListener('click', e => {
+  if (e.target.id === 'modalCierreBg') closeCierreModal();
+});
+document.getElementById('modalAbrirBg')?.addEventListener('click', e => {
+  if (e.target.id === 'modalAbrirBg') closeAbrirModal();
+});
+</script>
+
+</body>
+</html>
